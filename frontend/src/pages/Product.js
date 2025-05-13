@@ -54,9 +54,12 @@ const Product = () => {
       if (filters.platforms && filters.platforms.length > 0 && !filters.platforms.includes(product.platform)) {
         return false;
       }
-      // Apply rating filter
+      // Apply rating filter (now min and max)
       const rating = parseFloat(product.rating) || 0;
-      if (rating < filters.rating) {
+      if (typeof filters.ratingMin === 'number' && rating < filters.ratingMin) {
+        return false;
+      }
+      if (typeof filters.ratingMax === 'number' && rating > filters.ratingMax) {
         return false;
       }
       return true;

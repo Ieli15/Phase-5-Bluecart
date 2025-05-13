@@ -156,6 +156,29 @@
 }
 /* --- End further widen price range min/max input fields --- */
 
+/* --- Stacked Price Range Filter Layout --- */
+.price-inputs-stacked .input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+.price-inputs-stacked .form-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  color: var(--text-color);
+}
+.price-inputs-stacked .form-control {
+  width: 100%;
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+.price-inputs-stacked .input-group-text {
+  margin-bottom: 0.2rem;
+}
+/* --- End Stacked Price Range Filter Layout --- */
+
 .input-group-text {
   background-color: var(--primary-light);
   color: var(--white);

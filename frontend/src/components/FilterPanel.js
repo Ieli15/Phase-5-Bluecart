@@ -3,7 +3,8 @@ import React, { useState, useEffect } from 'react';
 const FilterPanel = ({ products, onFilterChange }) => {
   const [filters, setFilters] = useState({
     priceRange: [0, 1000],
-    rating: 0
+    ratingMin: 0,
+    ratingMax: 5
   });
   
   const [expanded, setExpanded] = useState(true);
@@ -42,13 +43,14 @@ const FilterPanel = ({ products, onFilterChange }) => {
     });
   };
   
-  // Handle rating filter change
-  const handleRatingChange = (e) => {
-    const value = parseInt(e.target.value);
-    setFilters({
-      ...filters,
-      rating: value
-    });
+  // Handle rating min/max change
+  const handleRatingMinChange = (e) => {
+    const value = parseFloat(e.target.value);
+    setFilters(prev => ({ ...prev, ratingMin: value, ratingMax: Math.max(value, prev.ratingMax) }));
+  };
+  const handleRatingMaxChange = (e) => {
+    const value = parseFloat(e.target.value);
+    setFilters(prev => ({ ...prev, ratingMax: value, ratingMin: Math.min(value, prev.ratingMin) }));
   };
   
   // Handle platform filter change
@@ -81,7 +83,7 @@ const FilterPanel = ({ products, onFilterChange }) => {
   };
   
   return (
-    <div className={`filter-panel ${expanded ? 'expanded' : 'collapsed'}`}>
+    <div className={`filter-panel ${expanded ? 'expanded' : 'collapsed'}`} style={{ maxHeight: '80vh', overflowY: 'auto' }}>
       <div className="filter-header" onClick={toggleExpand}>
         <h4>
           <i className="fas fa-filter"></i> Filter
@@ -92,14 +94,16 @@ const FilterPanel = ({ products, onFilterChange }) => {
       </div>
       
       {expanded && (
-        <div className="filter-content">
+        <div className="filter-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           {/* Price Range Filter */}
           <div className="filter-section">
             <h5>Price Range</h5>
-            <div className="price-inputs">
+            <div className="price-inputs-stacked">
               <div className="input-group">
+                <label htmlFor="min-price" className="form-label">From</label>
                 <span className="input-group-text">$</span>
                 <input
+                  id="min-price"
                   type="number"
                   className="form-control min-price"
                   value={filters.priceRange[0]}
@@ -107,10 +111,11 @@ const FilterPanel = ({ products, onFilterChange }) => {
                   min="0"
                 />
               </div>
-              <span className="price-separator">to</span>
-              <div className="input-group">
+              <div className="input-group" style={{ marginTop: '0.5rem' }}>
+                <label htmlFor="max-price" className="form-label">To</label>
                 <span className="input-group-text">$</span>
                 <input
+                  id="max-price"
                   type="number"
                   className="form-control max-price"
                   value={filters.priceRange[1]}
@@ -142,44 +147,51 @@ const FilterPanel = ({ products, onFilterChange }) => {
           
           {/* Rating Filter */}
           <div className="filter-section">
-            <h5>Minimum Rating</h5>
-            <div className="rating-slider">
+            <h5>Rating Range</h5>
+            <div className="rating-range-inputs" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
               <input
-                type="range"
-                className="form-range"
+                type="number"
+                className="form-control min-rating"
                 min="0"
                 max="5"
-                step="1"
-                value={filters.rating}
-                onChange={handleRatingChange}
+                step="0.1"
+                value={filters.ratingMin}
+                onChange={handleRatingMinChange}
+                style={{ width: '60px', fontSize: '1.1rem', height: '2.2rem' }}
               />
-              <div className="rating-value">
-                {[...Array(5)].map((_, i) => (
-                  <i 
-                    key={i}
-                    className={`fas fa-star ${i < filters.rating ? 'filled' : ''}`}
-                  ></i>
-                ))}
-              </div>
+              <span className="price-separator">to</span>
+              <input
+                type="number"
+                className="form-control max-rating"
+                min={filters.ratingMin}
+                max="5"
+                step="0.1"
+                value={filters.ratingMax}
+                onChange={handleRatingMaxChange}
+                style={{ width: '60px', fontSize: '1.1rem', height: '2.2rem' }}
+              />
             </div>
           </div>
           
-          {/* Reset Filters Button */}
-          <button
-            className="btn btn-outline-secondary reset-filters-btn"
-            onClick={() => {
-              setFilters({
-                priceRange: [0, Math.max(...products.map(product => product.price || 0)) + 100],
-                rating: 0
-              });
-              setSelectedPlatforms(platforms);
-            }}
-          >
-            Reset Filters
-          </button>
-
-          {/* Apply Filters Button */}
-          <button onClick={handleFilterChange}>Apply Filters</button>
+          {/* Reset/Apply Buttons fixed at bottom */}
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button
+              className="btn btn-outline-secondary reset-filters-btn"
+              onClick={() => {
+                setFilters({
+                  priceRange: [0, Math.max(...products.map(product => product.price || 0)) + 100],
+                  ratingMin: 0,
+                  ratingMax: 5
+                });
+                setSelectedPlatforms(platforms);
+              }}
+            >
+              Reset Filters
+            </button>
+            <button className="btn btn-primary" onClick={handleFilterChange}>
+              Apply Filters
+            </button>
+          </div>
         </div>
       )}
     </div>

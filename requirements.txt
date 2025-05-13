@@ -8,3 +8,4 @@ flask_cors
 flask_jwt_extended
 werkzeug
 flask_login
+psycopg2-binary

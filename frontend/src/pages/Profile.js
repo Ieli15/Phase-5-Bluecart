@@ -25,6 +25,24 @@ const Profile = () => {
       });
     }
   }, [user]);
+
+  // Add a useEffect to fetch user info if created_at is missing
+  useEffect(() => {
+    if (user && !user.created_at) {
+      const token = localStorage.getItem('token');
+      fetch('http://localhost:5000/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.user && data.user.created_at) {
+            updateUser({ ...user, created_at: data.user.created_at });
+          }
+        });
+    }
+  }, [user, updateUser]);
   
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -189,7 +207,7 @@ const Profile = () => {
           
           <div className="account-info">
             <h3>Account Information</h3>
-            <p><strong>Member Since:</strong> {new Date(user?.created_at).toLocaleDateString()}</p>
+            <p><strong>Member Since:</strong> {user?.created_at && !isNaN(Date.parse(user.created_at)) ? new Date(user.created_at).toLocaleDateString() : 'Not Available'}</p>
           </div>
         </div>
       </div>

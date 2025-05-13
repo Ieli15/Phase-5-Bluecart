@@ -62,7 +62,8 @@ def register():
                 "user": {
                     "id": new_user.id,
                     "username": new_user.username,
-                    "email": new_user.email
+                    "email": new_user.email,
+                    "created_at": new_user.created_at.isoformat() if new_user.created_at else None
                 },
                 "access_token": access_token,
                 "refresh_token": refresh_token

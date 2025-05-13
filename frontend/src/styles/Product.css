@@ -179,6 +179,26 @@
 }
 /* --- End Stacked Price Range Filter Layout --- */
 
+/* --- Stacked Rating Range Filter Layout --- */
+.rating-range-inputs-stacked .input-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+.rating-range-inputs-stacked .form-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  color: var(--text-color);
+}
+.rating-range-inputs-stacked .form-select {
+  width: 100%;
+  font-size: 1.05rem;
+  margin-bottom: 0.2rem;
+}
+/* --- End Stacked Rating Range Filter Layout --- */
+
 .input-group-text {
   background-color: var(--primary-light);
   color: var(--white);

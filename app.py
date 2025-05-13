@@ -26,8 +26,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
-# Database configuration - PostgreSQL
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL', 'postgresql://bluecart_user:bluecart_pass@localhost:5432/bluecart_db')
+# Database configuration - use SQLite for local development by default
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL', 'sqlite:///mydatabase.db')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # JWT Configuration

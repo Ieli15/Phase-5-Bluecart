@@ -47,18 +47,18 @@ const Product = () => {
       if (price < filters.priceRange[0] || price > filters.priceRange[1]) {
         return false;
       }
-      
-      // Apply store filter
-      if (!filters.stores.includes(product.store)) {
+      // Apply platform filter
+      if (filters.platforms && filters.platforms.length === 0) {
+        return false; // No platforms selected, show nothing
+      }
+      if (filters.platforms && filters.platforms.length > 0 && !filters.platforms.includes(product.platform)) {
         return false;
       }
-      
       // Apply rating filter
       const rating = parseFloat(product.rating) || 0;
       if (rating < filters.rating) {
         return false;
       }
-      
       return true;
     });
     

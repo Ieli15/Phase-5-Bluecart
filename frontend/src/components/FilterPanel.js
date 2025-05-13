@@ -3,25 +3,17 @@ import React, { useState, useEffect } from 'react';
 const FilterPanel = ({ products, onFilterChange }) => {
   const [filters, setFilters] = useState({
     priceRange: [0, 1000],
-    stores: [],
     rating: 0
   });
   
-  const [storeOptions, setStoreOptions] = useState([]);
   const [expanded, setExpanded] = useState(true);
+
+  // Extract unique platforms from products
+  const platforms = Array.from(new Set(products.map(p => p.platform).filter(Boolean)));
+  const [selectedPlatforms, setSelectedPlatforms] = useState(platforms);
   
-  // Extract all available stores from products
   useEffect(() => {
     if (products && products.length > 0) {
-      const stores = [...new Set(products.map(product => product.store))];
-      setStoreOptions(stores);
-      
-      // Initialize store filters to include all stores
-      setFilters(prev => ({
-        ...prev,
-        stores: stores
-      }));
-      
       // Find max price for the range
       const maxPrice = Math.max(...products.map(product => product.price || 0)) + 100;
       setFilters(prev => ({
@@ -50,17 +42,6 @@ const FilterPanel = ({ products, onFilterChange }) => {
     });
   };
   
-  // Handle store filter change
-  const handleStoreChange = (store) => {
-    setFilters((prev) => {
-      const updatedStores = prev.stores.includes(store)
-        ? prev.stores.filter((s) => s !== store)
-        : [...prev.stores, store];
-      onFilterChange({ stores: updatedStores });
-      return { ...prev, stores: updatedStores };
-    });
-  };
-  
   // Handle rating filter change
   const handleRatingChange = (e) => {
     const value = parseInt(e.target.value);
@@ -70,10 +51,22 @@ const FilterPanel = ({ products, onFilterChange }) => {
     });
   };
   
+  // Handle platform filter change
+  const handlePlatformChange = (platform) => {
+    setSelectedPlatforms(prev =>
+      prev.includes(platform)
+        ? prev.filter(p => p !== platform)
+        : [...prev, platform]
+    );
+  };
+
   // Apply filters
   useEffect(() => {
-    onFilterChange(filters);
-  }, [filters, onFilterChange]);
+    onFilterChange({
+      ...filters,
+      platforms: selectedPlatforms
+    });
+  }, [filters, selectedPlatforms, onFilterChange]);
   
   // Toggle panel expansion
   const toggleExpand = () => {
@@ -81,7 +74,10 @@ const FilterPanel = ({ products, onFilterChange }) => {
   };
 
   const handleFilterChange = () => {
-    onFilterChange(filters);
+    onFilterChange({
+      ...filters,
+      platforms: selectedPlatforms
+    });
   };
   
   return (
@@ -125,25 +121,23 @@ const FilterPanel = ({ products, onFilterChange }) => {
             </div>
           </div>
           
-          {/* Stores Filter */}
+          {/* Platforms Filter */}
           <div className="filter-section">
-            <h5>Stores</h5>
-            <div className="store-options">
-              {storeOptions.map(store => (
-                <div className="form-check" key={store}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    id={`store-${store}`}
-                    checked={filters.stores.includes(store)}
-                    onChange={() => handleStoreChange(store)}
-                  />
-                  <label className="form-check-label" htmlFor={`store-${store}`}>
-                    {store}
-                  </label>
-                </div>
-              ))}
-            </div>
+            <h5>Platforms</h5>
+            {platforms.map(platform => (
+              <div className="form-check" key={platform}>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id={`platform-${platform}`}
+                  checked={selectedPlatforms.includes(platform)}
+                  onChange={() => handlePlatformChange(platform)}
+                />
+                <label className="form-check-label" htmlFor={`platform-${platform}`}>
+                  {platform}
+                </label>
+              </div>
+            ))}
           </div>
           
           {/* Rating Filter */}
@@ -176,9 +170,9 @@ const FilterPanel = ({ products, onFilterChange }) => {
             onClick={() => {
               setFilters({
                 priceRange: [0, Math.max(...products.map(product => product.price || 0)) + 100],
-                stores: [...new Set(products.map(product => product.store))],
                 rating: 0
               });
+              setSelectedPlatforms(platforms);
             }}
           >
             Reset Filters

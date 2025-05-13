@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductCard from './ProductCard';
 import ComparisonTable from './ComparisonTable';
 
 const ProductList = ({ products }) => {
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [showComparison, setShowComparison] = useState(false);
+  const navigate = useNavigate();
 
   // Handle adding product to comparison
   const handleAddToCompare = (product) => {
-    // Check if product is already in comparison
-    if (selectedProducts.some(p => p.title === product.title && p.store === product.store)) {
-      // Remove from comparison if already there
-      setSelectedProducts(selectedProducts.filter(
-        p => !(p.title === product.title && p.store === product.store)
-      ));
+    // Use product.id as unique key if available, else fallback to title+store
+    const getKey = (p) => p.id !== undefined ? p.id : `${p.title}-${p.store}`;
+    const productKey = getKey(product);
+    if (selectedProducts.some(p => getKey(p) === productKey)) {
+      setSelectedProducts(selectedProducts.filter(p => getKey(p) !== productKey));
     } else {
-      // Add to comparison if not there (limit to 4 products)
-      if (selectedProducts.length < 4) {
+      if (selectedProducts.length < 2) {
         setSelectedProducts([...selectedProducts, product]);
       } else {
-        alert('You can compare up to 4 products at once');
+        alert('You can only compare 2 products at once');
       }
     }
   };
@@ -30,10 +30,14 @@ const ProductList = ({ products }) => {
     setShowComparison(false);
   };
 
-  // Show comparison table
+  // Show comparison table or navigate to compare page
   const handleShowComparison = () => {
     if (selectedProducts.length < 2) {
-      alert('Please select at least 2 products to compare');
+      alert('Please select 2 products to compare');
+      return;
+    }
+    if (selectedProducts.length === 2) {
+      navigate('/compare', { state: { products: selectedProducts } });
       return;
     }
     setShowComparison(true);
@@ -85,11 +89,11 @@ const ProductList = ({ products }) => {
         ) : (
           products.map((product, index) => (
             <ProductCard 
-              key={`${product.title}-${product.store}-${index}`}
+              key={product.id !== undefined ? product.id : `${product.title}-${product.store}-${index}`}
               product={product}
               onCompare={handleAddToCompare}
               isSelected={selectedProducts.some(
-                p => p.title === product.title && p.store === product.store
+                p => (p.id !== undefined ? p.id : `${p.title}-${p.store}`) === (product.id !== undefined ? product.id : `${product.title}-${product.store}`)
               )}
             />
           ))

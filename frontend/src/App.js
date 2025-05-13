@@ -14,6 +14,7 @@ import History from './pages/History';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import ProductDetails from './pages/ProductDetails';
+import ComparePage from './pages/ComparePage';
 
 // Styles
 import './styles/App.css';
@@ -44,6 +45,7 @@ function App() {
           <Route path="/product-details/:id" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route 
             path="/profile" 
             element={

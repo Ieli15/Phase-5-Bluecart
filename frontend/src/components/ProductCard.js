@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ product, onCompare }) => {
+const ProductCard = ({ product, onCompare, isSelected }) => {
   // Format price as currency
   const formatPrice = (price) => {
     return new Intl.NumberFormat('en-US', {
@@ -18,7 +18,7 @@ const ProductCard = ({ product, onCompare }) => {
   };
 
   return (
-    <div className="product-card amazon-style">
+    <div className={`product-card amazon-style${isSelected ? ' selected' : ''}`}>
       <div className="card">
         {/* Product name above image */}
         <div className="product-name-amazon">{product.name}</div>
@@ -97,10 +97,10 @@ const ProductCard = ({ product, onCompare }) => {
               View Product
             </Link>
             <button 
-              className="btn btn-outline-primary compare-btn"
+              className={`btn btn-outline-primary compare-btn${isSelected ? ' active' : ''}`}
               onClick={() => onCompare(product)}
             >
-              Compare
+              {isSelected ? 'Remove' : 'Compare'}
             </button>
           </div>
         </div>

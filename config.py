@@ -3,8 +3,8 @@ import os
 class Config:
     SECRET_KEY = os.environ.get('SESSION_SECRET', 'dev-secret-key')
     
-    # Database - SQLite
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///mydatabase.db'
+    # Database - PostgreSQL
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://bluecart_user:bluecart_pass@localhost:5432/bluecart_db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT 

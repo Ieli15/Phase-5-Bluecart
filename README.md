@@ -1,6 +1,6 @@
-# ShopCrawlAnalyzer
+# BlueCart Marketplace
 
-ShopCrawlAnalyzer is a full-stack web application for searching, comparing, and analyzing products across multiple e-commerce platforms. It features a Python Flask backend and a modern React frontend, providing users with advanced filtering, sorting, and comparison tools for smarter online shopping.
+BlueCart Marketplace is a full-stack web application for searching, comparing, and analyzing products across multiple e-commerce platforms. It features a Python Flask backend and a modern React frontend, providing users with advanced filtering, sorting, and comparison tools for smarter online shopping.
 
 ## Features
 
@@ -111,7 +111,10 @@ Phase-5-Bluecart/
 MIT License
 
 ## Authors
-- Your Name (and contributors)
+- Elias Ayunga
+- Erick Kipkoech
+- Jeremiah Orodi
+- Ahmed
 
 ---
 

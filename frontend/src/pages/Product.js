@@ -13,7 +13,30 @@ const Product = () => {
   const { searchResults, isLoading, searchQuery } = useSearch();
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [sortOption, setSortOption] = useState('bestValue');
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 10;
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  // Get products for current page
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * productsPerPage,
+    currentPage * productsPerPage
+  );
+
+  // Handle page change
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
+  // Reset to first page when filters or results change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredProducts]);
+
   // Apply filters to the search results
   const handleFilterChange = (filters) => {
     if (!searchResults) return;
@@ -171,7 +194,25 @@ const Product = () => {
                   </div>
                 )}
                 {filteredProducts && filteredProducts.length > 0 && (
-                  <ProductList products={filteredProducts} />
+                  <>
+                    <ProductList products={paginatedProducts} />
+                    {/* Pagination Controls */}
+                    <nav className="pagination-nav mt-4">
+                      <ul className="pagination justify-content-center">
+                        <li className={`page-item${currentPage === 1 ? ' disabled' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
+                        </li>
+                        {Array.from({ length: totalPages }, (_, i) => (
+                          <li key={i + 1} className={`page-item${currentPage === i + 1 ? ' active' : ''}`}>
+                            <button className="page-link" onClick={() => handlePageChange(i + 1)}>{i + 1}</button>
+                          </li>
+                        ))}
+                        <li className={`page-item${currentPage === totalPages ? ' disabled' : ''}`}>
+                          <button className="page-link" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
+                        </li>
+                      </ul>
+                    </nav>
+                  </>
                 )}
               </>
             )}

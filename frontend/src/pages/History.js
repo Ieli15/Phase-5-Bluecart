@@ -18,21 +18,61 @@ const History = () => {
   // Fetch search history
   const fetchHistory = async (page = 1) => {
     setLoading(true);
-    
+    setError('');
+
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/history?page=${page}&per_page=10`, {
+      const refreshToken = localStorage.getItem('refresh_token');
+
+      if (!token) {
+        console.error('No token found in localStorage'); // Log missing token
+        setError('User is not authenticated');
+        setLoading(false);
+        return;
+      }
+
+      let response = await fetch(`http://localhost:5000/api/history?page=${page}&per_page=10`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
+      if (response.status === 422) {
+        console.error('Invalid token or server validation failed');
+      }
+
+      if (response.status === 401 && refreshToken) {
+        const refreshResponse = await fetch('http://localhost:5000/api/auth/refresh', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${refreshToken}`
+          }
+        });
+
+        if (refreshResponse.status === 422) {
+          console.error('Invalid refresh token or server validation failed');
+        }
+
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh token');
+        }
+
+        const refreshData = await refreshResponse.json();
+        localStorage.setItem('token', refreshData.access_token);
+
+        response = await fetch(`http://localhost:5000/api/history?page=${page}&per_page=10`, {
+          headers: {
+            'Authorization': `Bearer ${refreshData.access_token}`
+          }
+        });
+      }
+
       if (!response.ok) {
         throw new Error('Failed to fetch search history');
       }
-      
+
       const data = await response.json();
-      
+
       setHistory(data.history);
       setPagination({
         currentPage: data.current_page,

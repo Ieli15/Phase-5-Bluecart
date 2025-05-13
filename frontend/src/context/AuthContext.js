@@ -18,31 +18,71 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
-      
+      const refreshToken = localStorage.getItem('refresh_token');
+
       if (!token) {
+        console.error('No token found in localStorage'); // Log missing token
+        setIsAuthenticated(false);
         setLoading(false);
         return;
       }
-      
+
       try {
         const response = await fetch('http://localhost:5000/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        
-        if (!response.ok) {
-          throw new Error('Authentication failed');
+
+        if (response.status === 422) {
+          console.error('Invalid token or server validation failed');
         }
-        
-        const data = await response.json();
-        setUser(data.user);
-        setIsAuthenticated(true);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('isAuthenticated', 'true');
+
+        if (!response.ok) {
+          if (refreshToken) {
+            const refreshResponse = await fetch('http://localhost:5000/api/auth/refresh', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${refreshToken}`
+              }
+            });
+
+            if (refreshResponse.status === 422) {
+              console.error('Invalid refresh token or server validation failed');
+            }
+
+            if (!refreshResponse.ok) {
+              throw new Error('Token refresh failed');
+            }
+
+            const refreshData = await refreshResponse.json();
+            localStorage.setItem('token', refreshData.access_token);
+
+            const retryResponse = await fetch('http://localhost:5000/api/auth/me', {
+              headers: {
+                'Authorization': `Bearer ${refreshData.access_token}`
+              }
+            });
+
+            if (!retryResponse.ok) {
+              throw new Error('Authentication failed after token refresh');
+            }
+
+            const retryData = await retryResponse.json();
+            setUser(retryData.user);
+            setIsAuthenticated(true);
+            localStorage.setItem('isAuthenticated', 'true'); // Persist state
+          } else {
+            throw new Error('No refresh token available');
+          }
+        } else {
+          const data = await response.json();
+          setUser(data.user);
+          setIsAuthenticated(true);
+          localStorage.setItem('isAuthenticated', 'true'); // Persist state
+        }
       } catch (error) {
         console.error('Auth check error:', error);
-        // Clear invalid token
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
@@ -53,16 +93,18 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
       }
     };
-    
+
     checkAuth();
   }, []);
   
   // Login function
-  const login = (userData) => {
+  const login = (userData, accessToken, refreshToken) => {
     setUser(userData);
     setIsAuthenticated(true);
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('isAuthenticated', 'true');
+    if (accessToken) localStorage.setItem('token', accessToken);
+    if (refreshToken) localStorage.setItem('refresh_token', refreshToken);
   };
   
   // Logout function

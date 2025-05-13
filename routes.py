@@ -87,15 +87,38 @@ def get_search_history():
     page = int(request.args.get('page', 1))
     per_page = int(request.args.get('per_page', 10))
 
-    # Use db.session.query(SearchHistory) to avoid attribute collision
-    query = db.session.query(SearchHistory).filter_by(user_id=current_user_id).order_by(SearchHistory.timestamp.desc())
-    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    # Log incoming request details
+    app.logger.info(f"Request headers: {request.headers}")
+    app.logger.info(f"Query parameters: page={page}, per_page={per_page}")
 
-    history = [item.to_dict() for item in pagination.items]
+    # Log the JWT identity
+    app.logger.info(f"JWT identity: {current_user_id}")
+    # Print the JWT identity for debugging
+    print(f"JWT identity: {current_user_id}")
 
-    return jsonify({
-        'history': history,
-        'current_page': pagination.page,
-        'pages': pagination.pages,
-        'total': pagination.total
-    }), 200
+    try:
+        # Use db.session.query(SearchHistory) to avoid attribute collision
+        query = db.session.query(SearchHistory).filter_by(user_id=current_user_id).order_by(SearchHistory.timestamp.desc())
+        app.logger.info(f"Query executed: {query}")
+        print(f"Query executed: {query}")
+
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        app.logger.info(f"Pagination items: {pagination.items}")
+        print(f"Pagination items: {pagination.items}")
+
+        if not pagination.items:
+            app.logger.warning("No search history found for the user")
+            print("No search history found for the user")
+
+        history = [item.to_dict() for item in pagination.items]
+
+        return jsonify({
+            'history': history,
+            'current_page': pagination.page,
+            'pages': pagination.pages,
+            'total': pagination.total
+        }), 200
+    except Exception as e:
+        app.logger.error(f"Error fetching search history: {e}")
+        print(f"Error fetching search history: {e}")
+        return jsonify({'error': 'Failed to fetch search history'}), 500

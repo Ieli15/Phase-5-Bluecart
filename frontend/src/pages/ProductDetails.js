@@ -33,7 +33,7 @@ const ProductDetails = () => {
       <p><strong>Delivery Cost:</strong> ${product.delivery_cost}</p>
       <p><strong>Payment Mode:</strong> {product.payment_mode}</p>
       <p><strong>MB Score:</strong> {product.mb_score}</p>
-      <p><strong>CB Score:</strong> {product.cb_score}</p>
+      <p><strong>CB Score:</strong> {product.cb_score ? (product.cb_score * 10).toFixed(1) : 'N/A'}</p>
       <p><strong>Description:</strong> {product.description || 'No description available.'}</p>
       <h3>User Comments</h3>
       {product.reviews && product.reviews.length > 0 ? (

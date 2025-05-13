@@ -11,9 +11,10 @@ const ProductCard = ({ product, onCompare }) => {
   };
 
   // Format MB/CB scores
-  const formatScore = (score) => {
+  const formatScore = (score, multiply = 1) => {
     if (score === null || score === undefined) return 'N/A';
-    return Number.isFinite(score) ? score.toFixed(1) : 'N/A';
+    const value = Number.isFinite(score) ? score * multiply : null;
+    return value !== null ? value.toFixed(2) : 'N/A';
   };
 
   return (
@@ -46,6 +47,9 @@ const ProductCard = ({ product, onCompare }) => {
               ? `${(product.title || '').substring(0, 60)}...` 
               : product.title}
           </h5>
+          <div className="platform-row">
+            <span className="platform-label">Platform:</span> <span className="platform-value">{product.platform ? product.platform : product.store}</span>
+          </div>
           <div className="product-price-rating-amazon">
             <div className="price-amazon">{formatPrice(product.price)}</div>
             <div className="rating-amazon">
@@ -74,10 +78,12 @@ const ProductCard = ({ product, onCompare }) => {
             <div className="score mb-score">
               <span className="score-label">MB:</span>
               <span className="score-value">{formatScore(product.mb_score)}</span>
+              <span className="score-platform">{product.mb_platform ? `(${product.mb_platform})` : ''}</span>
             </div>
             <div className="score cb-score">
               <span className="score-label">CB:</span>
-              <span className="score-value">{formatScore(product.cb_score)}</span>
+              <span className="score-value">{formatScore(product.cb_score, 100)}</span>
+              <span className="score-platform">{product.cb_platform ? `(${product.cb_platform})` : ''}</span>
             </div>
           </div>
           <div className="card-actions-amazon">
